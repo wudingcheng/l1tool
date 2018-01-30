@@ -1,5 +1,5 @@
 #!/usr/env/bin python
-#author: WU Dingcheng
+# author: WU Dingcheng
 from .l1tool import l1filter, cvx
 from .reader import reader
 import argparse
@@ -13,7 +13,7 @@ def app(filename,
         verbose=True,
         solver=cvx.MOSEK):
     """
-    :param filename: str, file input 
+    :param filename: str, file input
     :param output: str, file output
     :param lam: int, lambda parameter in L1 Regularize
     :param rho: int, rho parameter in L1 Regularize
@@ -41,13 +41,17 @@ def app(filename,
         df['seasonal'] = components[2]
     df.pop('t')
     df.to_csv(output, float_format='%.2f', sep=' ')
+    print("The estimated components have been written in {}".format(output))
     return df
 
 
-def main(args):
+def main():
+    import sys
+    args = sys.argv[1:]
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--file",
                         type=str,
+                        required=True,
                         help="input time series file")
     parser.add_argument('-l', '--lam',
                         default=1200,
@@ -66,8 +70,7 @@ def main(args):
                         default='components.dat',
                         help='output filename')
     parser.add_argument('-v', '--verbose',
-                        type=bool,
-                        default=True,
+                        action="store_true",
                         help='cvx verbose')
     parser.add_argument('-s', '--solver',
                         type=str,
@@ -85,4 +88,6 @@ def main(args):
     if solver is None:
         print("Error solver, cvxopt and mosek are supported!")
         return
-    return app(filename, output=output, lam=lam, rho=rho, periods=periods, verbose=args.verbose)
+    verbose = True if args.verbose else False
+    app(filename, output=output, lam=lam,
+        rho=rho, periods=periods, verbose=verbose)
